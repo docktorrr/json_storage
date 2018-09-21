@@ -11,14 +11,14 @@ class BaseModel:
     schema = None
     _data = None
 
-    def __init__(self, data):
+    def __init__(self, data: dict):
         if not self.filename:
             raise NotImplementedError("Set filename property")
         if not self.id_field:
             raise NotImplementedError("Set id_field property")
         self._data = data
 
-    def validate(self):
+    def validate(self) -> None:
         if not self._data:
             raise ValidationError()
         if not self.schema:
@@ -26,6 +26,6 @@ class BaseModel:
 
         validate(self._data, self.schema)
 
-    def get_data(self):
+    def get_data(self) -> dict:
         return self._data
 

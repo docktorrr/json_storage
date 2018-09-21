@@ -28,7 +28,7 @@ def test_json_update(tmpdir):
     storage = JSONStorage(tmpdir)
     manager = storage.get_manager(Product)
     manager.update(test_data)
-    item = manager.get(test_data['UUID'])
+    item = manager.get([test_data['UUID']])[0]
     assert item['UUID'] == test_data['UUID']
     assert item['name'] == test_data['name']
     assert item['price'] == test_data['price']
@@ -55,12 +55,19 @@ def test_json_validate():
 
 
 def test_json_get(tmpdir):
-    test_data = {'UUID': '111-111-111', 'name': 'Product 1', 'price': 220.99}
+    test_data = [
+        {'UUID': '111-111-111', 'name': 'Product 1', 'price': 220.99},
+        {'UUID': '222-222-111', 'name': 'Product 2', 'price': 220.99},
+        {'UUID': '111-222-345', 'name': 'Product 3', 'price': 220.99},
+    ]
     storage = JSONStorage(tmpdir)
     manager = storage.get_manager(Product)
-    manager.update(test_data)
-    assert test_data == manager.get('111-111-111')
-    assert manager.get('111') is None
+    for item in test_data:
+        manager.update(item)
+    assert manager.get(['111-111-111'])[0] == test_data[0]
+    assert manager.get(['111']) == []
+    results = manager.get(['111-111-111', '222-222-111'])
+    assert len(results) == 2
 
 
 def test_json_all(tmpdir):

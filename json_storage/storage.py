@@ -1,6 +1,9 @@
 import os
 import json
 import copy
+from typing import Iterable, Type
+
+from .model import BaseModel
 
 
 class JSONStorage:
@@ -10,17 +13,17 @@ class JSONStorage:
 
     _managers = {}
 
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.path = path
 
-    def set_data(self, filename, data):
+    def set_data(self, filename: str, data: dict) -> None:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         with open(os.path.join(self.path, filename), 'w+') as f:
             # TODO: concurrency control
             json.dump(data, f)
 
-    def get_data(self, filename):
+    def get_data(self, filename: str) -> dict:
         try:
             with open(os.path.join(self.path, filename), 'r') as f:
                 # TODO: concurrency control
@@ -28,7 +31,7 @@ class JSONStorage:
         except FileNotFoundError:
             return {}
 
-    def get_manager(self, model):
+    def get_manager(self, model: Type[BaseModel]):
         manager = self._managers.get(model)
         if not manager:
             manager = JSONManager(self, model)
@@ -41,30 +44,33 @@ class JSONManager:
     Manager for performing operations with JSON data.
     """
 
-    def __init__(self, storage, model):
+    def __init__(self, storage: JSONStorage, model: Type[BaseModel]):
         self.storage = storage
         self.model = model
 
-    def update(self, obj_data):
+    def update(self, obj_data: dict) -> None:
         obj_copy = copy.deepcopy(obj_data)
         id_ = obj_copy.pop(self.model.id_field)
         data = self.storage.get_data(self.model.filename)
         data[id_] = obj_copy
         self.storage.set_data(self.model.filename, data)
 
-    def delete(self, id_):
+    def delete(self, id_: str) -> None:
         data = self.storage.get_data(self.model.filename)
         data.pop(id_, None)
         self.storage.set_data(self.model.filename, data)
 
-    def get(self, id_):
+    def get(self, ids: Iterable[str]) -> dict:
         data = self.storage.get_data(self.model.filename)
-        obj_data = data.get(id_)
-        if obj_data:
-            obj_data[self.model.id_field] = id_
-        return obj_data
+        result = []
+        for id_ in ids:
+            obj_data = data.get(id_)
+            if obj_data:
+                obj_data[self.model.id_field] = id_
+                result.append(obj_data)
+        return result
 
-    def all(self):
+    def all(self) -> list:
         result = []
         data = self.storage.get_data(self.model.filename)
         for id_, val in data.items():
