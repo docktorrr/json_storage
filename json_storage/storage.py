@@ -14,6 +14,8 @@ class JSONStorage:
         self.path = path
 
     def set_data(self, filename, data):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
         with open(os.path.join(self.path, filename), 'w+') as f:
             # TODO: concurrency control
             json.dump(data, f)
