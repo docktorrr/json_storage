@@ -52,3 +52,16 @@ def test_json_validate():
 
     product = Product({'UUID': '111-111-111', 'name': 'Product 1', 'price': 220.99, 'other': 'test'})
     product.validate()
+
+
+def test_json_all(tmpdir):
+    test_data = [
+        {'UUID': '111-111-111', 'name': 'Product 1', 'price': 220.99},
+        {'UUID': '222-222-111', 'name': 'Product 2', 'price': 220.99},
+        {'UUID': '111-222-345', 'name': 'Product 3', 'price': 220.99},
+    ]
+    storage = JSONStorage(tmpdir)
+    manager = storage.get_manager(Product)
+    for item in test_data:
+        manager.update(item)
+    assert test_data == manager.all()

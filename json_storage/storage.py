@@ -60,3 +60,12 @@ class JSONManager:
         obj_data = data.get(id_)
         obj_data[self.model.id_field] = id_
         return obj_data
+
+    def all(self):
+        result = []
+        data = self.storage.get_data(self.model.filename)
+        for id_, val in data.items():
+            val.update({self.model.id_field: id_})
+            result.append(val)
+        return result
+
