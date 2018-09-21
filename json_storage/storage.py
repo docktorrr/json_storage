@@ -60,7 +60,8 @@ class JSONManager:
     def get(self, id_):
         data = self.storage.get_data(self.model.filename)
         obj_data = data.get(id_)
-        obj_data[self.model.id_field] = id_
+        if obj_data:
+            obj_data[self.model.id_field] = id_
         return obj_data
 
     def all(self):
