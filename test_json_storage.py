@@ -8,7 +8,7 @@ class Product(BaseModel):
     filename = 'product.json'
     id_field = 'UUID'
     schema = {
-        'type' : 'object',
+        'type': 'object',
         'required': [
             'UUID',
             'name',
@@ -81,3 +81,11 @@ def test_json_all(tmpdir):
     for item in test_data:
         manager.update(item)
     assert test_data == manager.all()
+
+
+def test_json_clear(tmpdir):
+    storage = JSONStorage(tmpdir)
+    manager = storage.get_manager(Product)
+    manager.update({'UUID': '111-111-111', 'name': 'Product 1', 'price': 220.99})
+    manager.clear_all()
+    assert manager.all() == []

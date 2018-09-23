@@ -78,3 +78,6 @@ class JSONManager:
             result.append(val)
         return result
 
+    def clear_all(self) -> None:
+        self.storage.set_data(self.model.filename, {})
+
