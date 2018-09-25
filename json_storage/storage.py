@@ -1,7 +1,7 @@
 import os
 import json
 import copy
-from typing import Iterable, Type
+from typing import Iterable, Type, Hashable
 
 from .model import BaseModel
 
@@ -55,12 +55,12 @@ class JSONManager:
         data[id_] = obj_copy
         self.storage.set_data(self.model.filename, data)
 
-    def delete(self, id_: str) -> None:
+    def delete(self, id_: Hashable) -> None:
         data = self.storage.get_data(self.model.filename)
         data.pop(id_, None)
         self.storage.set_data(self.model.filename, data)
 
-    def get(self, ids: Iterable[str]) -> dict:
+    def get(self, ids: Iterable[Hashable]) -> list:
         data = self.storage.get_data(self.model.filename)
         result = []
         for id_ in ids:
